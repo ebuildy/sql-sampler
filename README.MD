@@ -1,4 +1,11 @@
-Create data sample from a SQL database.
+Create data sample from a SQL database, with relation.
+
+This is good to extract data from all tables, but filtered by a query.
+
+## Use case
+
+* dev setup => you can have a small DB that represents the real DB
+* ci setup
 
 ## Usage
 
