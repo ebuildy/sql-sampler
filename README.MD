@@ -1,4 +1,6 @@
-Create data sample from a SQL database.
+Create data sample from a SQL database, with relation.
+
+This is good to extract all data related to a single table.
 
 ## Usage
 
