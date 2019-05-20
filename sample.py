@@ -48,6 +48,9 @@ def sample():
 
     artists = [row["artist_id"] for row in results]
 
+    def escape_value(v):
+        return v.translate(str.maketrans({'"' : '\\"'}))
+
     def get_output_path(format, table):
         path = args.output.format(format=format,table=table)
         dir = os.path.dirname(path)
@@ -59,7 +62,7 @@ def sample():
 
     def format_value_for_sql(value):
         if type(value) in (str, datetime.datetime):
-            return '"' + str(value) + '"'
+            return '"' + escape_value(str(value)) + '"'
 
         return str(value) if value else "null"
 
@@ -90,9 +93,9 @@ def sample():
 
         if args.sql:
             sqlValues = ",\n".join([('(' + ','.join([format_value_for_sql(v) for v in item.values()]) + ')') for item in results])
-            sqlInsert = "INSERT INTO {table} {columns} VALUES \n{values} ".format(
+            sqlInsert = "INSERT INTO {table} ({columns}) VALUES \n{values} ".format(
                                                                             table=table,
-                                                                            columns=str(tuple(columns)),
+                                                                            columns=','.join(['`' + c + '`' for c in columns]),
                                                                             values=sqlValues)
 
             with open(get_output_path("sql", table), "w") as file:
