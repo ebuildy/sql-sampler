@@ -36,6 +36,7 @@ def sample():
     session_obj = sessionmaker(bind=engine)
     session = scoped_session(session_obj)
     conn = engine.connect()
+    filters_values = {}
 
     for filter in appConf.get("filters").keys():
         filterConf = appConf.get("filters").get(filter)
@@ -46,7 +47,7 @@ def sample():
 
         results = conn.execute(sql)
 
-    artists = [row["artist_id"] for row in results]
+        filters_values[filter] = str(tuple([r[0] for r in results]))
 
     def escape_value(v):
         return v.translate(str.maketrans({'"' : '\\"'}))
@@ -73,8 +74,11 @@ def sample():
         sql = "SELECT * FROM {table}".format(table=table)
 
         if "where" in tableConf:
-            whereClause = tableConf.get("where").format(artists=str(tuple(artists)))
+            whereClause = tableConf.get("where").format(**filters_values)
             sql = "{sql} WHERE {where}".format(sql=sql, where=whereClause)
+
+        if "limit" in tableConf:
+            sql = "{sql} LIMIT {limit}".format(sql=sql, limit=tableConf.get("limit"))
 
         logging.debug('exec "%s"', sql)
 
